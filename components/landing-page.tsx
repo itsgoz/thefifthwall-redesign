@@ -1,15 +1,45 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { useQuiz } from "@/lib/quiz-context"
+import PosterWall from "@/components/poster-wall"
+import { DifficultyScreen } from "@/components/difficulty-screen"
+import type { Topic, Difficulty } from "@/lib/types"
+
+type Screen = "door" | "posters" | "difficulty"
 
 export function LandingPage() {
   const { startQuiz } = useQuiz()
+  const [screen, setScreen] = useState<Screen>("door")
+  const [selectedTopic, setSelectedTopic] = useState<Topic | "random" | null>(null)
 
   const handleDoorClick = () => {
-    // For now: start a random Beginner quiz.
-    // We can change this later when we add topic/difficulty screens.
-    startQuiz("random", "Beginner")
+    setScreen("posters")
+  }
+
+  const handlePosterSelect = (topic: Topic | "random") => {
+    setSelectedTopic(topic)
+    setScreen("difficulty")
+  }
+
+  const handleSelectDifficulty = (difficulty: Difficulty) => {
+    if (selectedTopic == null) return
+    startQuiz(selectedTopic, difficulty)
+  }
+
+  if (screen === "posters") {
+    return <PosterWall onPosterSelect={handlePosterSelect} />
+  }
+
+  if (screen === "difficulty" && selectedTopic != null) {
+    return (
+      <DifficultyScreen
+        selectedTopic={selectedTopic}
+        onSelectDifficulty={handleSelectDifficulty}
+        onBack={() => setScreen("posters")}
+      />
+    )
   }
 
   return (
@@ -35,30 +65,68 @@ export function LandingPage() {
         />
       </div>
 
-      {/* Clickable door hotspot */}
+      {/* Desktop-only door hotspot */}
       <button
-        className="hidden md:block"
+        className="hidden md:flex items-start justify-center group"
         type="button"
         onClick={handleDoorClick}
         aria-label="Enter through the door"
         style={{
           position: "absolute",
-          // These percentages control where the clickable area sits.
-          // Start with these, then adjust while looking at the browser.
-          top: "40%",     // move up/down
-          left: "55%",    // move left/right
-          width: "12%",   // make the hotspot wider/narrower
-          height: "60%",  // make the hotspot taller/shorter
-
-          // Temporary styling so you can SEE the hotspot while adjusting.
-          backgroundColor: "rgba(255, 255, 255, 0.12)",
-          borderRadius: "8px",
-          border: "1px solid rgba(255, 255, 255, 0.4)",
-          cursor: "pointer"
+          top: "40%",
+          left: "55%",
+          width: "12%",
+          height: "60%",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer",
         }}
       >
-        {/* You can remove this text later; it's just for debugging. */}
-        <span style={{ color: "white", fontSize: 12 }}>Enter The 5th Wall</span>
+        <span
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          style={{
+            marginTop: "90px",
+            color: "#F3EADB",
+            fontFamily: '"Limelight", cursive',
+            fontSize: 20,
+            letterSpacing: "0.08em",
+            textTransform: "capitalize",
+          }}
+        >
+          Click to Enter
+        </span>
+      </button>
+
+      {/* Mobile-only door hotspot */}
+      <button
+        className="flex md:hidden items-start justify-center group"
+        type="button"
+        onClick={handleDoorClick}
+        aria-label="Enter through the door"
+        style={{
+          position: "absolute",
+          top: "35%",
+          left: "65%",
+          width: "30%",
+          height: "60%",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        <span
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-center"
+          style={{
+            marginTop: "160px",
+            color: "#F3EADB",
+            fontFamily: '"Limelight", cursive',
+            fontSize: 16,
+            letterSpacing: "0.08em",
+            textTransform: "capitalize",
+          }}
+        >
+          Click to Enter
+        </span>
       </button>
     </div>
   )

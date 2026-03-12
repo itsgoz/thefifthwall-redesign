@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { useQuiz } from "@/lib/quiz-context"
 import PosterWall from "@/components/poster-wall"
@@ -9,18 +9,58 @@ import type { Topic, Difficulty } from "@/lib/types"
 
 type Screen = "door" | "posters" | "difficulty"
 
+const TICKET_SVGS = ["/tickets/beginner-ticket.svg", "/tickets/intermediate-ticket.svg", "/tickets/advanced-ticket.svg"]
+
+function preloadImage(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+    img.onload = () => resolve()
+    img.onerror = () => reject(new Error(`Failed to preload ${src}`))
+    img.src = src
+  })
+}
+
 export function LandingPage() {
   const { startQuiz } = useQuiz()
   const [screen, setScreen] = useState<Screen>("door")
   const [selectedTopic, setSelectedTopic] = useState<Topic | "random" | null>(null)
+  const [transitioning, setTransitioning] = useState(false)
+  const isMountedRef = useRef(true)
+  const transitionTokenRef = useRef(0)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const handleDoorClick = () => {
     setScreen("posters")
   }
 
-  const handlePosterSelect = (topic: Topic | "random") => {
+  const handlePosterSelect = async (topic: Topic | "random") => {
+    if (transitioning) return
+    setTransitioning(true)
+    const token = ++transitionTokenRef.current
+
+    // Keep the poster wall visible until ticket SVGs are ready
+    try {
+      await Promise.all(TICKET_SVGS.map(preloadImage))
+    } catch {
+      // If preloading fails, still navigate; the DifficultyScreen will render normally.
+    }
+
+    if (!isMountedRef.current || transitionTokenRef.current !== token) return
     setSelectedTopic(topic)
     setScreen("difficulty")
+    setTransitioning(false)
+  }
+
+  const handleBackToPosters = () => {
+    // Cancel any in-flight transition/preload and re-enable poster clicks
+    transitionTokenRef.current++
+    setTransitioning(false)
+    setScreen("posters")
   }
 
   const handleSelectDifficulty = (difficulty: Difficulty) => {
@@ -37,7 +77,7 @@ export function LandingPage() {
       <DifficultyScreen
         selectedTopic={selectedTopic}
         onSelectDifficulty={handleSelectDifficulty}
-        onBack={() => setScreen("posters")}
+        onBack={handleBackToPosters}
       />
     )
   }

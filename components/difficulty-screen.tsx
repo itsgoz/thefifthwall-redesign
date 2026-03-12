@@ -67,8 +67,9 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 2rem;
+          padding: clamp(16px, 4vw, 32px);
           font-family: 'Cinzel', serif;
+          box-sizing: border-box;
         }
         .difficulty-screen .ticket-row {
           display: flex;
@@ -79,8 +80,11 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           perspective: 800px;
         }
         .difficulty-screen .ticket-wrap {
-          flex: 0 1 280px;
-          max-width: 320px;
+          flex: 0 1 min(340px, 90vw);
+          max-width: 400px;
+          padding: 6px;
+          background: linear-gradient(135deg, #c9a227 0%, #d4af37 25%, #f0d875 50%, #d4af37 75%, #b8860b 100%);
+          border-radius: 6px;
           transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
         }
         .difficulty-screen .ticket-wrap:hover {
@@ -97,6 +101,11 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           opacity: 0.85;
           box-shadow: 0 18px 40px rgba(0,0,0,0.6);
         }
+        .difficulty-screen .ticket-inner {
+          background: #ffffff;
+          border-radius: 4px;
+          overflow: hidden;
+        }
         .difficulty-screen .ticket-image {
           display: block;
           width: 100%;
@@ -105,15 +114,13 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           box-shadow: 0 12px 24px rgba(0,0,0,0.35);
         }
         .difficulty-screen .back-btn {
-          position: absolute;
-          top: 24px;
-          left: 24px;
+          flex-shrink: 0;
           background: rgba(0,0,0,0.3);
           border: 1px solid rgba(212,175,55,0.5);
           color: #e8dcc8;
           padding: 8px 16px;
           font-family: 'Cinzel', serif;
-          font-size: 12px;
+          font-size: clamp(11px, 2.5vw, 12px);
           letter-spacing: 0.1em;
           cursor: pointer;
           border-radius: 4px;
@@ -123,24 +130,54 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           background: rgba(0,0,0,0.5);
           color: #fff;
         }
+        .difficulty-screen .screen-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          max-width: 1200px;
+          gap: clamp(12px, 3vw, 24px);
+          padding-bottom: clamp(16px, 3vw, 32px);
+          flex-shrink: 0;
+        }
+        .difficulty-screen .screen-header-left {
+          min-width: 72px;
+          flex-shrink: 0;
+        }
+        .difficulty-screen .screen-header-right {
+          min-width: 72px;
+          flex-shrink: 0;
+        }
         .difficulty-screen .screen-title {
+          flex: 1;
+          min-width: 0;
+          margin: 0;
+          padding: 0 clamp(8px, 2vw, 16px);
           font-family: 'Cinzel', serif;
-          font-size: clamp(14px, 1.8vw, 18px);
+          font-size: clamp(12px, 2.5vw, 18px);
           font-weight: 600;
-          letter-spacing: 0.25em;
+          line-height: 1.25;
+          letter-spacing: 0.15em;
           color: rgba(232,220,200,0.9);
-          margin-bottom: 32px;
+          text-align: center;
           text-transform: uppercase;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       `}</style>
 
-      {onBack && (
-        <button type="button" className="back-btn" onClick={onBack} aria-label="Back to topic selection">
-          ← Back
-        </button>
-      )}
-
-      <p className="screen-title">Select Your Showing</p>
+      <header className="screen-header">
+        <div className="screen-header-left">
+          {onBack && (
+            <button type="button" className="back-btn" onClick={onBack} aria-label="Back to topic selection">
+              ← Back
+            </button>
+          )}
+        </div>
+        <p className="screen-title">Select Your Difficulty Level</p>
+        <div className="screen-header-right" aria-hidden="true" />
+      </header>
 
       <div className="ticket-row">
         {DIFFICULTIES.map((d, i) => {
@@ -156,11 +193,13 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
               tabIndex={0}
               aria-label={`Select ${d.label} for ${courseLabel(selectedTopic)}`}
             >
-              <img
-                src={d.svg}
-                alt={`${d.label} ticket for ${courseLabel(selectedTopic)}`}
-                className="ticket-image"
-              />
+              <div className="ticket-inner">
+                <img
+                  src={d.svg}
+                  alt={`${d.label} ticket for ${courseLabel(selectedTopic)}`}
+                  className="ticket-image"
+                />
+              </div>
             </div>
           )
         })}

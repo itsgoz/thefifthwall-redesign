@@ -1,6 +1,6 @@
 import { useState, CSSProperties } from "react";
 import { useQuiz } from "@/lib/quiz-context";
-import questionBank from "@/data/question-bank.json";
+
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 type View = "question" | "result";
@@ -22,79 +22,57 @@ interface QuizQuestion {
   explanation: string;
 }
 
-type RawRow = {
-  id: string;
-  topic: string;
-  difficulty: string;
-  concept: string;
-  question: string;
-  mediaType: string;
-  mediaUrl: string;
-  mediaSource: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: "A" | "B" | "C" | "D";
-  explanation: string;
-};
 
 const QUIZ_LENGTH = 10;
 
-function mapRowToQuizQuestion(row: RawRow, index: number): QuizQuestion {
-  return {
-    topic: row.topic,
-    total: QUIZ_LENGTH,
-    current: index + 1,
-    questionText: row.question,
-    mediaLabel:
-      row.mediaType && row.mediaUrl
-        ? `${row.mediaType}: ${row.mediaUrl}`
-        : "Media: image, gif or video",
-    options: [
-      { key: "A", text: row.optionA },
-      { key: "B", text: row.optionB },
-      { key: "C", text: row.optionC },
-      { key: "D", text: row.optionD },
-    ],
-    correctKey: row.correctAnswer,
-    explanation: row.explanation,
-  };
-}
+
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function QuizScreen() {
-  const { quizState } = useQuiz();
-  const selectedTopic = quizState?.selectedTopic;
+  const { quizState, submitAnswer, nextQuestion } = useQuiz();
+  console.log("isComplete:", quizState?.isComplete, "answers:", quizState?.answers.length);
 
-  const allRows = questionBank as RawRow[];
-  const topicRows =
-    selectedTopic && selectedTopic !== "random"
-      ? allRows.filter((row) => row.topic === selectedTopic)
-      : allRows;
 
-  const [view, setView] = useState<View>("question");
-  const [selected, setSelected] = useState<AnswerKey | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [mediaFailed, setMediaFailed] = useState(false);
 
-  const selectedRow = topicRows[currentIndex] ?? topicRows[0];
-  const q = mapRowToQuizQuestion(selectedRow, currentIndex);
+const [view, setView] = useState<View>("question");
+const [selected, setSelected] = useState<AnswerKey | null>(null);
+const [submitted, setSubmitted] = useState(false);
+const [mediaFailed, setMediaFailed] = useState(false);
+
+const contextQuestion = quizState!.questions[quizState!.currentQuestionIndex];
+const q: QuizQuestion = {
+  topic: contextQuestion.topic,
+  total: quizState!.questions.length,
+  current: quizState!.currentQuestionIndex + 1,
+  questionText: contextQuestion.questionText,
+  mediaLabel: "Media: image, gif or video",
+  options: [
+    { key: "A", text: contextQuestion.answerOptions[0] ?? "" },
+    { key: "B", text: contextQuestion.answerOptions[1] ?? "" },
+    { key: "C", text: contextQuestion.answerOptions[2] ?? "" },
+    { key: "D", text: contextQuestion.answerOptions[3] ?? "" },
+  ],
+  correctKey: contextQuestion.correctAnswer as AnswerKey,
+  explanation: contextQuestion.explanation,
+};
+const mediaUrl = contextQuestion.media?.url ?? "";
+const mediaType = contextQuestion.media?.type ?? "";
+
   const isCorrect = selected === q.correctKey;
 
-  const handleSubmit = () => {
-    if (!selected) return;
-    setSubmitted(true);
-    setView("result");
-  };
+ const handleSubmit = () => {
+  if (!selected) return;
+  submitAnswer(selected);
+  setSubmitted(true);
+  setView("result");
+};
 
   const handleNext = () => {
     setSelected(null);
     setSubmitted(false);
     setView("question");
     setMediaFailed(false);
-    setCurrentIndex((prev) => Math.min(prev + 1, QUIZ_LENGTH - 1));
+    nextQuestion();
   };
 
   return (
@@ -149,11 +127,11 @@ export default function QuizScreen() {
             {/* MEDIA AREA */}
             <div style={s.mediaBox}>
               <div style={s.mediaInner}>
-                {!mediaFailed && selectedRow.mediaUrl &&
-                (selectedRow.mediaType === "image" || selectedRow.mediaType === "gif") ? (
+                {!mediaFailed && mediaUrl &&
+                (mediaType === "image" || mediaType === "gif") ? (
                   <img
-                    key={selectedRow.mediaUrl}
-                    src={selectedRow.mediaUrl}
+                    key={mediaUrl}
+                    src={mediaUrl}
                     alt=""
                     referrerPolicy="no-referrer"
                     onError={() => setMediaFailed(true)}
@@ -165,9 +143,9 @@ export default function QuizScreen() {
                       display: "block",
                     }}
                   />
-                ) : !mediaFailed && selectedRow.mediaUrl && selectedRow.mediaType === "video" ? (
+                ) : !mediaFailed && mediaUrl && mediaType === "video" ? (
                   <video
-                    key={selectedRow.mediaUrl}
+                    key={mediaUrl}
                     src={selectedRow.mediaUrl}
                     controls
                     onError={() => setMediaFailed(true)}

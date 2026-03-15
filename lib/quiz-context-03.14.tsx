@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import type { Question, QuizState, UserAnswer, Topic, Difficulty, QuizResults, TopicPerformance } from "./types"
 import { getFilteredQuestions, getRandomQuestions, TOPICS } from "./mock-questions"
 import { fetchQuestionsFromSheet, getFilteredQuestions as getFilteredFromGoogle, getRandomQuestions as getRandomFromGoogle } from "./google-sheets"
-import questionBank from "@/data/question-bank.json"
 
 interface QuizContextType {
   quizState: QuizState | null
@@ -66,62 +65,66 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const startQuiz = useCallback((topic: Topic | "random", difficulty: Difficulty) => {
-    const allRows = questionBank as any[]
-  
-    let filtered = topic === "random"
-      ? allRows.filter(r => r.difficulty === difficulty)
-      : allRows.filter(r => r.topic === topic && r.difficulty === difficulty)
-  
-    if (filtered.length < QUESTIONS_PER_QUIZ) {
-      filtered = topic === "random"
-        ? allRows
-        : allRows.filter(r => r.topic === topic)
+    let questions: Question[]
+    const questionsToUse = useGoogleSheets && cachedQuestions.length > 0 ? cachedQuestions : []
+    
+    if (useGoogleSheets && cachedQuestions.length > 0) {
+      // Use Google Sheets data
+      if (topic === "random") {
+        questions = getRandomFromGoogle(QUESTIONS_PER_QUIZ, difficulty, questionsToUse)
+      } else {
+        questions = getFilteredFromGoogle(topic, difficulty, questionsToUse)
+        
+        if (questions.length < QUESTIONS_PER_QUIZ) {
+          const allTopicQuestions = getFilteredFromGoogle(topic, null, questionsToUse)
+          const existingIds = new Set(questions.map(q => q.id))
+          const additionalQuestions = allTopicQuestions.filter(q => !existingIds.has(q.id))
+          questions = [...questions, ...additionalQuestions].slice(0, QUESTIONS_PER_QUIZ)
+        }
+      }
+    } else {
+      // Fall back to mock data (mock-questions functions don't require questions parameter)
+      if (topic === "random") {
+        questions = getRandomQuestions(QUESTIONS_PER_QUIZ, difficulty)
+      } else {
+        questions = getFilteredQuestions(topic, difficulty)
+        
+        if (questions.length < QUESTIONS_PER_QUIZ) {
+          const allTopicQuestions = getFilteredQuestions(topic, null)
+          const existingIds = new Set(questions.map(q => q.id))
+          const additionalQuestions = allTopicQuestions.filter(q => !existingIds.has(q.id))
+          questions = [...questions, ...additionalQuestions].slice(0, QUESTIONS_PER_QUIZ)
+        }
+      }
     }
-  
-    const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, QUESTIONS_PER_QUIZ)
-  
-    const questions: Question[] = shuffled.map((r: any) => ({
-      id: r.id,
-      topic: r.topic,
-      concept: r.concept,
-      difficulty: r.difficulty,
-      questionText: r.question,
-      answerOptions: [r.optionA, r.optionB, r.optionC, r.optionD],
-      correctAnswer: r.correctAnswer,
-      explanation: r.explanation,
-      media: {
-        type: r.mediaType,
-        url: r.mediaUrl,
-        source: r.mediaSource,
-      },
-    }))
-  
+
+    // Shuffle the questions
+    questions = questions.sort(() => Math.random() - 0.5)
+
     setQuizState({
       currentQuestionIndex: 0,
-      questions,
+      questions: questions.slice(0, QUESTIONS_PER_QUIZ),
       answers: [],
       isComplete: false,
       selectedTopic: topic,
-      selectedDifficulty: difficulty,
+      selectedDifficulty: difficulty
     })
-  }, [])
+  }, [useGoogleSheets, cachedQuestions])
 
   const submitAnswer = useCallback((answer: string) => {
     setQuizState(prev => {
       if (!prev) return null
       const currentQuestion = prev.questions[prev.currentQuestionIndex]
-      console.log("answer received:", answer)
-      console.log("correctAnswer:", currentQuestion.correctAnswer)
-      console.log("isCorrect:", answer === currentQuestion.correctAnswer)
-      const isCorrect = answer === currentQuestion.correctAnswer
-  
+      const isCorrect = answer === currentQuestion.correctAnswer ||
+       ["A","B","C","D"][currentQuestion.answerOptions?.indexOf(currentQuestion.correctAnswer) ?? -1] === answer
+
       const newAnswer: UserAnswer = {
         questionId: currentQuestion.id,
         selectedAnswer: answer,
         isCorrect,
         hasReviewedExplanation: false
       }
-  
+
       return {
         ...prev,
         answers: [...prev.answers, newAnswer]

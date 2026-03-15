@@ -1,18 +1,15 @@
 "use client"
 
-import { motion, AnimatePresence } from "framer-motion"
 import { useQuiz } from "@/lib/quiz-context"
-import { QuestionCard } from "./question-card"
-import { ResultsView } from "./results-view"
-import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ResultsView } from "./results-view2.0"
 import QuizScreen from "./quiz-screen"
 
 export function QuizView() {
-  const { quizState, resetQuiz } = useQuiz()
+  const { quizState } = useQuiz()
+  console.log("QuizView sees isComplete:", quizState?.isComplete)
 
   if (!quizState) return null
-
+  if (quizState.isComplete) return <ResultsView /> 
   return (
     <QuizScreen />
   )

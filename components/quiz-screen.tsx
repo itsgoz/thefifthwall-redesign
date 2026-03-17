@@ -1,6 +1,6 @@
 import { useState, CSSProperties } from "react";
 import { useQuiz } from "@/lib/quiz-context";
-
+import { navigateTo } from "@/app/page"
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 type View = "question" | "result";
@@ -120,7 +120,7 @@ const mediaType = contextQuestion.media?.type ?? "";
                 <span style={s.counter}>{q.current}/{q.total}</span>
               </div>
               <div style={s.headerRight}>
-                <button style={s.exitBtn}>✕ Exit</button>
+               <button style={s.exitBtn} onClick={() => navigateTo("poster-wall")}>✕ Exit</button>
               </div>
             </div>
 
@@ -146,7 +146,7 @@ const mediaType = contextQuestion.media?.type ?? "";
                 ) : !mediaFailed && mediaUrl && mediaType === "video" ? (
                   <video
                     key={mediaUrl}
-                    src={selectedRow.mediaUrl}
+                    src={mediaUrl}
                     controls
                     onError={() => setMediaFailed(true)}
                     style={{
@@ -243,7 +243,7 @@ const mediaType = contextQuestion.media?.type ?? "";
                 </button>
               ) : (
                 <button style={s.nextBtn} onClick={handleNext}>
-                  Next Question →
+                  {q.current === q.total ? "See Results" : "Next Question →"}
                 </button>
               )}
             </div>
@@ -299,6 +299,7 @@ const s: Record<string, CSSProperties> = {
     background: "linear-gradient(180deg, #0d0a06 0%, #100c06 35%, #0a0604 100%)",
     position: "relative",
     overflow: "hidden",
+    minHeight: 0,
   },
 
   // ── CEILING ──
@@ -331,6 +332,7 @@ const s: Record<string, CSSProperties> = {
     margin: "0 auto",
     width: "100%",
     maxWidth: "1200px",
+    overflow: "hidden",
   },
   screenGlowLeft: {
     position: "absolute",
@@ -369,6 +371,8 @@ const s: Record<string, CSSProperties> = {
     boxShadow: "0 0 60px 10px rgba(200,150,40,0.18), inset 0 0 40px rgba(0,0,0,0.5)",
     minHeight: 0,
     overflow: "hidden",
+    flex: "1 1 0",
+    maxHeight: "100%",
   },
 
   // ── HEADER ──
@@ -444,15 +448,17 @@ const s: Record<string, CSSProperties> = {
 
   // ── MEDIA ──
   mediaBox: {
-    flex: "1 1 0",
-    minHeight: "clamp(120px, 22vh, 260px)",
+    flex: "0 0 auto",
+    minHeight: "clamp(160px, 28vh, 300px)",
     display: "flex",
     padding: "clamp(6px, 1.5vh, 14px) clamp(8px, 1.5vw, 16px) clamp(4px, 1vh, 10px)",
     background: "rgba(0,0,0,0.2)",
+    borderBottom: "2px solid rgba(220,175,70,0.7",
   },
   mediaInner: {
     flex: 1,
-    minHeight: "clamp(120px, 22vh, 260px)",
+    minHeight: "clamp(140px, 24vh, 270px)",
+    maxHeight: "clamp(140px, 24vh, 270px)",
     border: "1px solid rgba(201,168,76,0.2)",
     background: "rgba(20,16,10,0.6)",
     overflow: "hidden",

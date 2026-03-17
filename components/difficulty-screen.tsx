@@ -21,18 +21,21 @@ function courseLabel(topic: Topic | "random"): string {
 
 export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: DifficultyScreenProps) {
   const [tearing, setTearing] = useState<Difficulty | null>(null)
+  const [selected, setSelected] = useState<Difficulty | null>(null)
   const tearingRef = useRef(false)
   const timeoutRef = useRef<number | null>(null)
 
   const handleTicketClick = (d: Difficulty) => {
-    // Guard synchronously using a ref so rapid clicks can't schedule multiple timeouts
-    if (tearingRef.current) return
-    tearingRef.current = true
+    setSelected(d)
+  }
 
-    setTearing(d)
+  const handleConfirm = () => {
+    if (!selected || tearingRef.current) return
+    tearingRef.current = true
+    setTearing(selected)
     timeoutRef.current = window.setTimeout(() => {
       tearingRef.current = false
-      onSelectDifficulty(d)
+      onSelectDifficulty(selected)
     }, 700)
   }
 
@@ -66,8 +69,8 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
-          padding: clamp(16px, 4vw, 32px);
+          justify-content: flex-start;
+          padding: clamp(24px, 5vw, 48px);
           font-family: 'Cinzel', serif;
           box-sizing: border-box;
         }
@@ -78,29 +81,72 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           gap: clamp(24px, 4vw, 48px);
           flex-wrap: wrap;
           perspective: 800px;
+          flex: 1;
+          width: 100%;
         }
-        .difficulty-screen .ticket-wrap {
-          flex: 0 1 min(340px, 90vw);
-          max-width: 400px;
-          padding: 6px;
-          background: linear-gradient(135deg, #c9a227 0%, #d4af37 25%, #f0d875 50%, #d4af37 75%, #b8860b 100%);
-          border-radius: 6px;
-          transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
-        }
-        .difficulty-screen .ticket-wrap:hover {
-          transform: translateY(-12px) rotate(0deg);
-          box-shadow: 0 24px 48px rgba(0,0,0,0.5);
-        }
-        .difficulty-screen .ticket-wrap.fan-left { transform: rotate(-6deg); }
-        .difficulty-screen .ticket-wrap.fan-left:hover { transform: translateY(-12px) rotate(-6deg); }
-        .difficulty-screen .ticket-wrap.fan-right { transform: rotate(6deg); }
-        .difficulty-screen .ticket-wrap.fan-right:hover { transform: translateY(-12px) rotate(6deg); }
-        .difficulty-screen .ticket-wrap.tearing {
-          pointer-events: none;
-          transform: translate(-16px, -8px) rotate(-4deg);
-          opacity: 0.85;
-          box-shadow: 0 18px 40px rgba(0,0,0,0.6);
-        }
+        @keyframes ds-glowPulse {
+  0%,100% { box-shadow: 0 0 30px 8px rgba(255,200,80,0.35), 0 0 80px 20px rgba(255,160,40,0.18); }
+  50%      { box-shadow: 0 0 45px 14px rgba(255,210,90,0.55), 0 0 100px 30px rgba(255,170,50,0.28); }
+}
+.difficulty-screen .ticket-wrap {
+  flex: 0 1 min(340px, 90vw);
+  max-width: 400px;
+  padding: 6px;
+  background: linear-gradient(135deg, #c9a227 0%, #d4af37 25%, #f0d875 50%, #d4af37 75%, #b8860b 100%);
+  border-radius: 6px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+  cursor: pointer;
+}
+.difficulty-screen .ticket-wrap:hover {
+  transform: translateY(-12px);
+  animation: ds-glowPulse 2s ease-in-out infinite;
+}
+.difficulty-screen .ticket-wrap.fan-left { transform: rotate(-6deg); }
+.difficulty-screen .ticket-wrap.fan-left:hover { transform: translateY(-12px) rotate(-6deg); }
+.difficulty-screen .ticket-wrap.fan-right { transform: rotate(6deg); }
+.difficulty-screen .ticket-wrap.fan-right:hover { transform: translateY(-12px) rotate(6deg); }
+.difficulty-screen .ticket-wrap.selected {
+  animation: ds-glowPulse 2s ease-in-out infinite;
+  transform: translateY(-8px);
+}
+.difficulty-screen .ticket-wrap.fan-left.selected { transform: translateY(-8px) rotate(-6deg); }
+.difficulty-screen .ticket-wrap.fan-right.selected { transform: translateY(-8px) rotate(6deg); }
+.difficulty-screen .ticket-wrap.tearing {
+  pointer-events: none;
+  transform: translate(-16px, -8px) rotate(-4deg);
+  opacity: 0.85;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+}
+.difficulty-screen .confirm-btn {
+  margin-top: clamp(16px, 3vh, 32px);
+  padding: 14px 48px;
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(12px, 2vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(232,220,200,0.35);
+  cursor: not-allowed;
+  transition: opacity 0.3s ease, transform 0.2s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.difficulty-screen .confirm-btn.active {
+  background: linear-gradient(135deg, #c9a227 0%, #d4af37 25%, #f0d875 50%, #d4af37 75%, #b8860b 100%);
+  border-color: transparent;
+  color: #1a0a00;
+  cursor: pointer;
+  pointer-events: all;
+}
+.difficulty-screen .confirm-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px 8px rgba(255,200,80,0.35);
+}
+.difficulty-screen .confirm-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px 8px rgba(255,200,80,0.35);
+}
         .difficulty-screen .ticket-inner {
           background: #ffffff;
           border-radius: 4px;
@@ -186,7 +232,7 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
           return (
             <div
               key={d.value}
-              className={`ticket-wrap ${fanClass} ${isTearing ? "tearing" : ""}`}
+              className={`ticket-wrap ${fanClass} ${isTearing ? "tearing" : ""} ${selected === d.value ? "selected" : ""}`}
               onClick={() => handleTicketClick(d.value)}
               onKeyDown={(e) => e.key === "Enter" && handleTicketClick(d.value)}
               role="button"
@@ -203,7 +249,16 @@ export function DifficultyScreen({ selectedTopic, onSelectDifficulty, onBack }: 
             </div>
           )
         })}
-      </div>
-    </div>
-  )
+     </div>
+
+<button
+  className={`confirm-btn ${selected ? "active" : ""}`}
+  onClick={handleConfirm}
+  disabled={!selected}
+>
+  Enjoy The Show! →
+</button>
+
+</div>
+)
 }

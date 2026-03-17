@@ -12,8 +12,10 @@ import type { Topic, Difficulty } from "@/lib/types"
 type Screen = "landing" | "poster-wall" | "difficulty" | "quiz" | "results"
 
 let currentSetScreen: ((screen: Screen) => void) | null = null
+let currentSetTopic: ((topic: Topic | "random") => void) | null = null
 
-export function navigateTo(screen: Screen) {
+export function navigateTo(screen: Screen, topic?: Topic | "random") {
+  if (topic !== undefined) currentSetTopic?.(topic)
   currentSetScreen?.(screen)
 }
 
@@ -22,6 +24,7 @@ function QuizApp() {
   const [screen, setScreen] = useState<Screen>("landing")
   const [selectedTopic, setSelectedTopic] = useState<Topic | "random">("random")
   currentSetScreen = setScreen
+  currentSetTopic = setSelectedTopic
 
   // Automatically move to results when quiz is complete
   if (screen === "quiz" && quizState?.isComplete) {

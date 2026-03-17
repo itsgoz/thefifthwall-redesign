@@ -6,6 +6,7 @@ import { useQuiz } from "@/lib/quiz-context"
 import { RefreshCw, Shuffle, BookOpen, Trophy, Target, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TOPICS } from "@/lib/mock-questions"
+import { navigateTo } from "@/app/page"
 
 export function ResultsView() {
   const { getResults, startQuiz, resetQuiz, quizState } = useQuiz()
@@ -24,6 +25,7 @@ export function ResultsView() {
 
   const handleRetry = () => {
     startQuiz(quizState.selectedTopic, quizState.selectedDifficulty)
+    navigateTo("quiz")
   }
 
   const handleRandomQuiz = () => {
@@ -32,6 +34,7 @@ export function ResultsView() {
 
   const handleChangeTopic = () => {
     resetQuiz()
+    navigateTo("poster-wall")
   }
 
   const scoreColor =
@@ -244,7 +247,7 @@ export function ResultsView() {
                       key={topic}
                       className="topic-chip"
                       style={s.topicChip}
-                      onClick={() => startQuiz(topic, quizState.selectedDifficulty)}
+                      onClick={() => navigateTo("difficulty", topic)}
                     >
                       {topic}
                     </button>
@@ -266,9 +269,9 @@ export function ResultsView() {
                 <RefreshCw style={{ width: 13, height: 13 }} />
                 Retake Quiz
               </button>
-              <button className="action-btn action-btn-outline" style={s.actionBtnOutline} onClick={handleRandomQuiz}>
+              <button className="action-btn action-btn-outline" style={s.actionBtnOutline} onClick={() => navigateTo("difficulty", "random")}>
                 <Shuffle style={{ width: 13, height: 13 }} />
-                Random Quiz
+                 Random Quiz
               </button>
               <button className="action-btn action-btn-outline" style={s.actionBtnOutline} onClick={handleChangeTopic}>
                 <BookOpen style={{ width: 13, height: 13 }} />

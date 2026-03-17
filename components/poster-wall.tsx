@@ -24,7 +24,7 @@ const POSTERS: Poster[] = [
   { id: 6, title: "Camera Angles", subtitle: "Perspective & Power", src: "/posters/camera-angles.png", topic: "Camera Angles" },
   { id: 7, title: "Focus & Depth", subtitle: "All May Not Be As It Seems", src: "/posters/depth-of-field.png", topic: "Focus & Depth of Field" },
   { id: 8, title: "Mise en Scène", subtitle: "It's All in the Frame", src: "/posters/mise-en-scene.png", topic: "Mise en Scene" },
-  { id: 9, title: "Mystery Bag", subtitle: "A Curated Selection · Shuffle Mode", src: "/posters/mystery-screening.png", topic: "random" },
+  { id: 9, title: "Mystery Screening", subtitle: "A Curated Selection · Shuffle Mode", src: "/posters/mystery-screening.png", topic: "random" },
 ];
 
 // Placeholder gradient posters for demo (replace src above with real paths)

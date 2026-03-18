@@ -143,18 +143,21 @@ const mediaType = contextQuestion.media?.type ?? "";
                       display: "block",
                     }}
                   />
-                ) : !mediaFailed && mediaUrl && mediaType === "video" ? (
-                  <video
+                   ) : !mediaFailed && mediaUrl && mediaType === "video" ? (
+                  <iframe
                     key={mediaUrl}
-                    src={mediaUrl}
-                    controls
+                    src={mediaUrl.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/")}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
                     onError={() => setMediaFailed(true)}
                     style={{
                       width: "100%",
                       height: "100%",
                       minHeight: "clamp(80px, 18vh, 220px)",
-                      objectFit: "contain",
-                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      border: "none",
                     }}
                   />
                 ) : (

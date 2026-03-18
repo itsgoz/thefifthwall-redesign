@@ -128,7 +128,7 @@ export default function TheatreLanding({ onEnter }: { onEnter?: () => void }) {
             <div className="fw-facade">
               <div className="fw-pilaster fw-left"  />
               <div className="fw-pilaster fw-right" />
-              <div className="fw-facade-band">Official Grand Opening</div>
+              <div className="fw-facade-band">Cinematography Quiz</div>
 
               {/* Lobby windows */}
               <div className="fw-windows-row">
@@ -394,6 +394,7 @@ const CSS = `
     letter-spacing: .38em;
     text-transform: uppercase;
     text-align: center;
+    opacity: 0;
   }
 
   /* ── Facade ── */
@@ -425,7 +426,7 @@ const CSS = `
     justify-content: center;
     gap: 14px;
     color: #b07c30;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: .55em;
     text-transform: uppercase;
   }

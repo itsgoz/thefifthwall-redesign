@@ -1,30 +1,9 @@
-# Cinematography quiz app
+# Cinematography quiz re-design app
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+Used Cursor and Claude as the tech stack for this redesign with the movie posters created in Canva. Figma used to create mood boards.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/gpt74r7tf-9752s-projects/v0-thefifthwall)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/kqMXXpUykz6)
+Focus was on a UI polish to improve the aesthetics of the site to mirror a cinema visit experience. 
 
-## Overview
+Cursor was the buld location and Claude was used to iterate on design after Cursor pro credits finished lol. 
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
 
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/gpt74r7tf-9752s-projects/v0-thefifthwall](https://vercel.com/gpt74r7tf-9752s-projects/v0-thefifthwall)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/kqMXXpUykz6](https://v0.app/chat/kqMXXpUykz6)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository

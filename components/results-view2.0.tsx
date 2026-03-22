@@ -76,7 +76,7 @@ export function ResultsView() {
             <div style={s.header}>
               <div style={s.headerLeft}>
                 <span style={s.logoText}>The Fifth Wall</span>
-                <span style={s.topicText}>{quizState.selectedTopic === "random" ? "Mystery Bag" : quizState.selectedTopic}</span>
+                <span style={s.topicText}>{quizState.selectedTopic === "random" ? "Mystery Screening" : quizState.selectedTopic}</span>
               </div>
               <div style={s.headerCenter}>
                 <Trophy style={{ width: 12, height: 12, color: "#C9A84C", flexShrink: 0 }} />
